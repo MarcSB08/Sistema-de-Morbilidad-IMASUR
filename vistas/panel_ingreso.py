@@ -13,7 +13,6 @@ class PanelIngreso(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master, corner_radius=10, fg_color="transparent")
 
-        # Conectamos con el backend
         self.db = ConsultasMedicos()
 
         self.lbl_titulo = ctk.CTkLabel(
@@ -60,7 +59,6 @@ class PanelIngreso(ctk.CTkFrame):
         )
         self.lbl_especialidad.grid(row=1, column=0, padx=20, pady=20, sticky="w")
 
-        # Agregamos el parámetro 'command' para detectar cuando el usuario elija una opción
         self.cmb_especialidad = ctk.CTkComboBox(
             self.form_frame,
             values=["Seleccione una especialidad..."],
@@ -109,19 +107,16 @@ class PanelIngreso(ctk.CTkFrame):
         )
         self.btn_guardar.pack(pady=(20, 40))
 
-        # Cargamos las especialidades desde la base de datos al arrancar el programa
         self.cargar_especialidades()
         self.after(100, self.focus_set)
 
     def cargar_especialidades(self):
-        """Extrae las especialidades de MySQL y las coloca en el menú desplegable."""
         especialidades = self.db.obtener_especialidades()
         valores = ["Seleccione una especialidad..."] + especialidades
         self.cmb_especialidad.configure(values=valores)
         self.cmb_especialidad.set("Seleccione una especialidad...")
 
     def actualizar_medicos(self, especialidad_seleccionada):
-        """Se ejecuta automáticamente cuando se elige una especialidad para filtrar los médicos."""
         if especialidad_seleccionada == "Seleccione una especialidad...":
             self.cmb_medico.configure(values=["Seleccione un médico..."])
             self.cmb_medico.set("Seleccione un médico...")
@@ -193,11 +188,19 @@ class PanelIngreso(ctk.CTkFrame):
             messagebox.showerror("Campos Incompletos", "\n".join(errores))
             return
 
-        messagebox.showinfo(
-            "Registro Exitoso",
-            f"La morbilidad del {medico} ha sido registrada correctamente.",
-        )
-        self.limpiar_formulario()
+        exito = self.db.guardar_registro_morbilidad(fecha, medico, int(cantidad))
+
+        if exito:
+            messagebox.showinfo(
+                "Registro Exitoso",
+                f"La morbilidad del {medico} ha sido registrada correctamente.",
+            )
+            self.limpiar_formulario()
+        else:
+            messagebox.showerror(
+                "Error de Conexión",
+                "Hubo un problema al guardar el registro en la base de datos. Comprueba la conexión a MySQL.",
+            )
 
     def limpiar_formulario(self):
         self.ent_fecha.delete(0, "end")

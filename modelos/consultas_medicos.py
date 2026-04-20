@@ -1,5 +1,5 @@
 """
-Módulo...
+Módulo que maneja las consultas a la base de datos relacionadas con los médicos y la morbilidad.
 """
 
 from modelos.conexion_db import ConexionDB
@@ -10,7 +10,6 @@ class ConsultasMedicos:
         self.conexion_db = ConexionDB()
 
     def obtener_especialidades(self):
-        """Extrae la lista de especialidades médicas desde la base de datos."""
         conexion = self.conexion_db.conectar()
         if conexion:
             try:
@@ -18,7 +17,6 @@ class ConsultasMedicos:
                 cursor.execute("SELECT nombre FROM especialidades ORDER BY nombre ASC")
                 resultados = cursor.fetchall()
 
-                # Convertimos el resultado de MySQL a una lista simple de texto
                 lista_especialidades = [fila[0] for fila in resultados]
                 return lista_especialidades
 
@@ -30,12 +28,10 @@ class ConsultasMedicos:
         return []
 
     def obtener_medicos_por_especialidad(self, nombre_especialidad):
-        """Extrae los médicos filtrados por la especialidad seleccionada."""
         conexion = self.conexion_db.conectar()
         if conexion:
             try:
                 cursor = conexion.cursor()
-                # Sentencia SQL con JOIN adaptada exactamente a tus tablas y columnas
                 consulta = """
                     SELECT m.nombre_medico 
                     FROM medicos m
@@ -46,7 +42,6 @@ class ConsultasMedicos:
                 cursor.execute(consulta, (nombre_especialidad,))
                 resultados = cursor.fetchall()
 
-                # Devolvemos exactamente lo que está guardado en 'nombre_medico'
                 lista_medicos = [fila[0] for fila in resultados]
                 return lista_medicos
 
@@ -56,3 +51,35 @@ class ConsultasMedicos:
             finally:
                 self.conexion_db.desconectar(conexion)
         return []
+
+    def guardar_registro_morbilidad(self, fecha, nombre_medico, cantidad_pacientes):
+        conexion = self.conexion_db.conectar()
+        if conexion:
+            try:
+                cursor = conexion.cursor()
+                consulta_id = "SELECT id_medico FROM medicos WHERE nombre_medico = %s"
+                cursor.execute(consulta_id, (nombre_medico,))
+                resultado = cursor.fetchone()
+
+                if resultado:
+                    id_medico = resultado[0]
+                    consulta_insert = """
+                        INSERT INTO morbilidad_diaria (fecha, id_medico, cantidad_pacientes)
+                        VALUES (%s, %s, %s)
+                    """
+                    cursor.execute(
+                        consulta_insert, (fecha, id_medico, cantidad_pacientes)
+                    )
+                    conexion.commit()
+                    return True
+                else:
+                    print("Médico no encontrado en la base de datos.")
+                    return False
+
+            except Exception as e:
+                print(f"Error al guardar el registro de morbilidad: {e}")
+                conexion.rollback()
+                return False
+            finally:
+                self.conexion_db.desconectar(conexion)
+        return False
