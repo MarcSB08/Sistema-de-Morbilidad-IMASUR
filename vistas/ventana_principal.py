@@ -1,5 +1,5 @@
 """
-Ventana principal del sistema
+Ventana principal del sistema, donde se encuentran todas las opciones
 """
 
 import customtkinter as ctk

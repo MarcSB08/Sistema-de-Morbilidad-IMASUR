@@ -1,13 +1,12 @@
 """
-Este módulo permite realizar la conexión con la base de datos donde se lleva el registro
-de los pacientes atendidos por especialista.
+Módulo que permite comprobar la conexión con la base de datos
 """
 
 import mysql.connector
 from mysql.connector import Error
 
 
-class ConexionIMASUR:
+class ConexionDB:
     def __init__(self):
         self.host = "127.0.0.1"
         self.database = "imasur_estadisticas"
@@ -23,14 +22,11 @@ class ConexionIMASUR:
                 password=self.password,
             )
             if conexion.is_connected():
-                print("¡Conexión exitosa a la base de datos del IMASUR!")
                 return conexion
-
         except Error as e:
-            print(f"Error al conectar con MySQL: {e}")
+            print(f"Error al conectar a MySQL: {e}")
             return None
 
-
-if __name__ == "__main__":
-    db = ConexionIMASUR()
-    db.conectar()
+    def desconectar(self, conexion):
+        if conexion and conexion.is_connected():
+            conexion.close()
