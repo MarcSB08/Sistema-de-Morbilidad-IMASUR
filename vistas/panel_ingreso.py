@@ -69,13 +69,13 @@ class PanelIngreso(ctk.CTkFrame):
         self.cmb_especialidad.grid(row=1, column=1, padx=20, pady=20, sticky="ew")
 
         self.lbl_medico = ctk.CTkLabel(
-            self.form_frame, text="Médico Atendió:", font=ctk.CTkFont(size=14)
+            self.form_frame, text="Médico Especialista:", font=ctk.CTkFont(size=14)
         )
         self.lbl_medico.grid(row=2, column=0, padx=20, pady=20, sticky="w")
 
         self.cmb_medico = ctk.CTkComboBox(
             self.form_frame,
-            values=["Seleccione un médico..."],
+            values=["Seleccione un especialista..."],
             height=35,
             state="readonly",
         )
@@ -118,19 +118,19 @@ class PanelIngreso(ctk.CTkFrame):
 
     def actualizar_medicos(self, especialidad_seleccionada):
         if especialidad_seleccionada == "Seleccione una especialidad...":
-            self.cmb_medico.configure(values=["Seleccione un médico..."])
-            self.cmb_medico.set("Seleccione un médico...")
+            self.cmb_medico.configure(values=["Seleccione un especialista..."])
+            self.cmb_medico.set("Seleccione un especialista...")
             return
 
         medicos = self.db.obtener_medicos_por_especialidad(especialidad_seleccionada)
 
         if medicos:
-            valores = ["Seleccione un médico..."] + medicos
+            valores = ["Seleccione un especialista..."] + medicos
         else:
-            valores = ["Seleccione un médico...", "No hay médicos registrados"]
+            valores = ["Seleccione un especialista...", "No hay médicos registrados"]
 
         self.cmb_medico.configure(values=valores)
-        self.cmb_medico.set("Seleccione un médico...")
+        self.cmb_medico.set("Seleccione un especialista...")
 
     def validar_numeros(self, texto):
         if texto == "" or texto.isdigit():
@@ -176,7 +176,7 @@ class PanelIngreso(ctk.CTkFrame):
         if especialidad == "Seleccione una especialidad..." or not especialidad:
             errores.append("Debe seleccionar una especialidad válida.")
         if (
-            medico == "Seleccione un médico..."
+            medico == "Seleccione un especialista..."
             or medico == "No hay médicos registrados"
             or not medico
         ):
@@ -193,7 +193,7 @@ class PanelIngreso(ctk.CTkFrame):
         if exito:
             messagebox.showinfo(
                 "Registro Exitoso",
-                f"La morbilidad del {medico} ha sido registrada correctamente.",
+                f"La morbilidad de {medico} ha sido registrada correctamente.",
             )
             self.limpiar_formulario()
         else:
@@ -205,7 +205,7 @@ class PanelIngreso(ctk.CTkFrame):
     def limpiar_formulario(self):
         self.ent_fecha.delete(0, "end")
         self.cmb_especialidad.set("Seleccione una especialidad...")
-        self.cmb_medico.configure(values=["Seleccione un médico..."])
-        self.cmb_medico.set("Seleccione un médico...")
+        self.cmb_medico.configure(values=["Seleccione un especialista..."])
+        self.cmb_medico.set("Seleccione un especialista...")
         self.ent_cantidad.delete(0, "end")
         self.focus_set()
