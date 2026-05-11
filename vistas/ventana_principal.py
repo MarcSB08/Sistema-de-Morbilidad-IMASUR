@@ -4,6 +4,7 @@ Ventana principal del sistema, donde se encuentran todas las opciones
 
 import customtkinter as ctk
 from vistas.panel_ingreso import PanelIngreso
+from vistas.panel_reportes import PanelReportes
 
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
@@ -63,13 +64,17 @@ class VentanaPrincipal(ctk.CTk):
         )
         self.label_bienvenida.pack(expand=True)
 
+        # Instanciar ambos paneles
         self.panel_ingreso = PanelIngreso(self.main_frame)
+        self.panel_reportes = PanelReportes(self.main_frame)
 
     def mostrar_ingreso(self):
         self.label_bienvenida.pack_forget()
+        self.panel_reportes.pack_forget()
         self.panel_ingreso.pack(fill="both", expand=True)
         self.panel_ingreso.limpiar_formulario()
 
     def mostrar_reportes(self):
+        self.label_bienvenida.pack_forget()
         self.panel_ingreso.pack_forget()
-        self.label_bienvenida.pack(expand=True)
+        self.panel_reportes.pack(fill="both", expand=True)
