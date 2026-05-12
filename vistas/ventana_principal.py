@@ -54,6 +54,16 @@ class VentanaPrincipal(ctk.CTk):
         )
         self.btn_reportes.grid(row=2, column=0, padx=20, pady=10)
 
+        # Botón de Cerrar Sesión en color rojo
+        self.btn_logout = ctk.CTkButton(
+            self.sidebar_frame,
+            text="Cerrar Sesión",
+            fg_color="#dc3545",
+            hover_color="#c82333",
+            command=self.cerrar_sesion,
+        )
+        self.btn_logout.grid(row=3, column=0, padx=20, pady=10)
+
         self.main_frame = ctk.CTkFrame(self, corner_radius=10)
         self.main_frame.grid(row=0, column=1, padx=20, pady=20, sticky="nsew")
 
@@ -78,3 +88,11 @@ class VentanaPrincipal(ctk.CTk):
         self.label_bienvenida.pack_forget()
         self.panel_ingreso.pack_forget()
         self.panel_reportes.pack(fill="both", expand=True)
+
+    def cerrar_sesion(self):
+        """Cierra la ventana principal y regresa al login."""
+        self.destroy()
+        from vistas.login import Login
+
+        app_login = Login()
+        app_login.mainloop()

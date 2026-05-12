@@ -1,9 +1,9 @@
 """
-Módulo principal del sistema, donde se inicializa la interfaz visual.
+Módulo principal del sistema, donde se inicializa la aplicación con el login.
 """
 
-from vistas.ventana_principal import VentanaPrincipal
+from vistas.login import Login
 
 if __name__ == "__main__":
-    app = VentanaPrincipal()
+    app = Login()
     app.mainloop()
