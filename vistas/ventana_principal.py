@@ -3,6 +3,7 @@ Ventana principal del sistema, donde se encuentran todas las opciones
 """
 
 import customtkinter as ctk
+import sys
 from vistas.panel_ingreso import PanelIngreso
 from vistas.panel_reportes import PanelReportes
 
@@ -10,13 +11,15 @@ ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
 
 
-class VentanaPrincipal(ctk.CTk):
-    def __init__(self):
-        super().__init__()
+class VentanaPrincipal(ctk.CTkToplevel):
+    def __init__(self, master_window):
+        super().__init__(master_window)
 
+        self.master_window = master_window
         self.title("Sistema de Registro de Morbilidad - IMASUR")
 
-        # Ajusta la ventana a la computadora que se esté utilizando
+        self.protocol("WM_DELETE_WINDOW", self.cerrar_aplicacion)
+
         try:
             self.after(0, lambda: self.state("zoomed"))
         except:
@@ -27,7 +30,6 @@ class VentanaPrincipal(ctk.CTk):
                 alto = self.winfo_screenheight()
                 self.geometry(f"{ancho}x{alto}+0+0")
 
-        # Valor mínimo de la ventana
         self.minsize(800, 500)
 
         self.grid_rowconfigure(0, weight=1)
@@ -54,7 +56,6 @@ class VentanaPrincipal(ctk.CTk):
         )
         self.btn_reportes.grid(row=2, column=0, padx=20, pady=10)
 
-        # Botón de Cerrar Sesión en color rojo
         self.btn_logout = ctk.CTkButton(
             self.sidebar_frame,
             text="Cerrar Sesión",
@@ -74,7 +75,6 @@ class VentanaPrincipal(ctk.CTk):
         )
         self.label_bienvenida.pack(expand=True)
 
-        # Instanciar ambos paneles
         self.panel_ingreso = PanelIngreso(self.main_frame)
         self.panel_reportes = PanelReportes(self.main_frame)
 
@@ -90,9 +90,16 @@ class VentanaPrincipal(ctk.CTk):
         self.panel_reportes.pack(fill="both", expand=True)
 
     def cerrar_sesion(self):
-        """Cierra la ventana principal y regresa al login."""
+        """Limpia los gráficos y regresa al login."""
+        self.panel_reportes.limpiar_recursos()
         self.destroy()
-        from vistas.login import Login
+        self.master_window.ent_password.delete(0, "end")
+        self.master_window.deiconify()
 
-        app_login = Login()
-        app_login.mainloop()
+    def cerrar_aplicacion(self):
+        """Cierra la aplicación forzando la liberación de la terminal."""
+        self.panel_reportes.limpiar_recursos()
+        self.destroy()
+        self.master_window.quit()
+        self.master_window.destroy()
+        sys.exit()  # Esto asegura que el proceso termine por completo en la terminal

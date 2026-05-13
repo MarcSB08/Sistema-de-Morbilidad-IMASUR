@@ -73,13 +73,13 @@ class Login(ctk.CTk):
         usuario = self.ent_usuario.get()
         password = self.ent_password.get()
 
-        # Credenciales solicitadas
+        # Validación de credenciales
         if usuario == "admin" and password == "123456":
-            self.destroy()  # Cerramos la ventana de login
+            self.withdraw()  # Ocultamos el login para evitar errores de aplicación destruida
             from vistas.ventana_principal import VentanaPrincipal
 
-            app_principal = VentanaPrincipal()
-            app_principal.mainloop()
+            # Instanciamos la ventana principal pasando 'self' como master
+            app_principal = VentanaPrincipal(self)
         else:
             messagebox.showerror(
                 "Acceso Denegado",
