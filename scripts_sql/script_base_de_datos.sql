@@ -21,3 +21,11 @@ CREATE TABLE morbilidad_diaria (
     cantidad_pacientes INT NOT NULL,
     FOREIGN KEY (id_medico) REFERENCES medicos(id_medico)
 );
+
+CREATE TABLE usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_usuario VARCHAR(50) NOT NULL,
+    contrasena VARCHAR(50) NOT NULL
+);
+
+INSERT INTO usuarios (nombre_usuario, contrasena) VALUES ('admin', '123456');

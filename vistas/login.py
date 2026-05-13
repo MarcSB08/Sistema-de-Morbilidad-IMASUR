@@ -4,11 +4,15 @@ Módulo encargado de la interfaz de inicio de sesión del sistema.
 
 import customtkinter as ctk
 from tkinter import messagebox
+from modelos.consultas_medicos import ConsultasMedicos
 
 
 class Login(ctk.CTk):
     def __init__(self):
         super().__init__()
+
+        # Instanciar la base de datos para la validación
+        self.db = ConsultasMedicos()
 
         self.title("Inicio de Sesión - IMASUR")
         self.geometry("400x500")
@@ -23,7 +27,6 @@ class Login(ctk.CTk):
         y = (alto_pantalla // 2) - (alto_ventana // 2)
         self.geometry(f"{ancho_ventana}x{alto_ventana}+{x}+{y}")
 
-        # Configuración de diseño
         self.grid_columnconfigure(0, weight=1)
 
         self.lbl_logo = ctk.CTkLabel(
@@ -42,13 +45,11 @@ class Login(ctk.CTk):
         )
         self.lbl_bienvenida.grid(row=0, column=0, pady=(20, 20))
 
-        # Campo de Usuario
         self.ent_usuario = ctk.CTkEntry(
             self.frame_login, placeholder_text="Usuario", height=45, width=280
         )
         self.ent_usuario.grid(row=1, column=0, pady=10)
 
-        # Campo de Contraseña
         self.ent_password = ctk.CTkEntry(
             self.frame_login,
             placeholder_text="Contraseña",
@@ -58,7 +59,6 @@ class Login(ctk.CTk):
         )
         self.ent_password.grid(row=2, column=0, pady=10)
 
-        # Botón de Ingreso
         self.btn_login = ctk.CTkButton(
             self.frame_login,
             text="Iniciar Sesión",
@@ -73,12 +73,11 @@ class Login(ctk.CTk):
         usuario = self.ent_usuario.get()
         password = self.ent_password.get()
 
-        # Validación de credenciales
-        if usuario == "admin" and password == "123456":
-            self.withdraw()  # Ocultamos el login para evitar errores de aplicación destruida
+        # Validación con la base de datos
+        if self.db.validar_usuario(usuario, password):
+            self.withdraw()
             from vistas.ventana_principal import VentanaPrincipal
 
-            # Instanciamos la ventana principal pasando 'self' como master
             app_principal = VentanaPrincipal(self)
         else:
             messagebox.showerror(
