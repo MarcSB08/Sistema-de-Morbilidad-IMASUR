@@ -3,7 +3,7 @@ Módulo del panel visual donde se generan los reportes estadísticos de morbilid
 """
 
 import customtkinter as ctk
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from modelos.consultas_medicos import ConsultasMedicos
@@ -15,6 +15,7 @@ class PanelReportes(ctk.CTkFrame):
 
         self.db = ConsultasMedicos()
         self.canvas_widget = None
+        self.fig = None  # Guardamos la referencia de la figura para poder exportarla
 
         self.nombres_meses = [
             "Enero",
@@ -99,13 +100,25 @@ class PanelReportes(ctk.CTkFrame):
             row=1, column=4, columnspan=2, padx=10, pady=10, sticky="ew"
         )
 
+        # Ajuste de los botones para que queden centrados y alineados
         self.btn_generar = ctk.CTkButton(
             self.frame_controles,
             text="Generar Gráfico",
             font=ctk.CTkFont(weight="bold"),
             command=self.generar_grafico,
         )
-        self.btn_generar.grid(row=2, column=0, columnspan=6, pady=20)
+        self.btn_generar.grid(row=2, column=1, columnspan=2, pady=20)
+
+        self.btn_exportar = ctk.CTkButton(
+            self.frame_controles,
+            text="Exportar Gráfico",
+            font=ctk.CTkFont(weight="bold"),
+            fg_color="#28a745",
+            hover_color="#218838",
+            state="disabled",
+            command=self.exportar_grafico,
+        )
+        self.btn_exportar.grid(row=2, column=3, columnspan=2, pady=20)
 
         self.frame_grafico = ctk.CTkFrame(self, fg_color="transparent")
         self.frame_grafico.pack(pady=10, padx=20, fill="both", expand=True)
@@ -138,6 +151,10 @@ class PanelReportes(ctk.CTkFrame):
         if self.canvas_widget:
             self.canvas_widget.get_tk_widget().destroy()
             self.canvas_widget = None
+        self.fig = None
+        self.btn_exportar.configure(
+            state="disabled"
+        )  # Bloqueamos el botón si limpiamos el gráfico
         plt.close("all")
 
     def generar_grafico(self):
@@ -176,12 +193,42 @@ class PanelReportes(ctk.CTkFrame):
         etiquetas = [fila[0] for fila in datos]
         valores = [fila[1] for fila in datos]
 
-        fig, ax = plt.subplots(figsize=(6, 4))
-        fig.patch.set_alpha(0.0)
+        # Guardamos la figura en self.fig para poder exportarla después
+        self.fig, ax = plt.subplots(figsize=(6, 4))
+        self.fig.patch.set_alpha(0.0)
         ax.pie(valores, labels=etiquetas, autopct="%1.1f%%", startangle=140)
         ax.axis("equal")
         ax.set_title(titulo, pad=20)
 
-        self.canvas_widget = FigureCanvasTkAgg(fig, master=self.frame_grafico)
+        self.canvas_widget = FigureCanvasTkAgg(self.fig, master=self.frame_grafico)
         self.canvas_widget.draw()
         self.canvas_widget.get_tk_widget().pack(fill="both", expand=True)
+
+        # Habilitamos el botón de exportar porque ya hay un gráfico válido
+        self.btn_exportar.configure(state="normal")
+
+    def exportar_grafico(self):
+        """Abre un cuadro de diálogo para guardar el gráfico actual como imagen."""
+        if self.fig:
+            archivo = filedialog.asksaveasfilename(
+                defaultextension=".png",
+                filetypes=[
+                    ("Imagen PNG", "*.png"),
+                    ("Imagen JPEG", "*.jpg"),
+                    ("Documento PDF", "*.pdf"),
+                ],
+                title="Guardar Gráfico como...",
+            )
+            if archivo:
+                try:
+                    # Aplicamos facecolor='white' para que no quede transparente y se lea bien
+                    self.fig.savefig(archivo, bbox_inches="tight", facecolor="white")
+                    messagebox.showinfo(
+                        "Exportación Exitosa",
+                        f"El gráfico se ha guardado correctamente en:\n{archivo}",
+                    )
+                except Exception as e:
+                    messagebox.showerror(
+                        "Error de Exportación",
+                        f"Hubo un problema al guardar el archivo:\n{e}",
+                    )
