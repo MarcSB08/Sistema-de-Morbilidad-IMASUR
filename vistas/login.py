@@ -1,10 +1,12 @@
 """
-Módulo encargado de la interfaz de inicio de sesión del sistema.
+Módulo encargado de la interfaz de inicio de sesión del sistema con logo integrado.
 """
 
 import customtkinter as ctk
 from tkinter import messagebox
 from modelos.consultas_medicos import ConsultasMedicos
+from PIL import Image
+import os
 
 
 class Login(ctk.CTk):
@@ -14,11 +16,12 @@ class Login(ctk.CTk):
         self.db = ConsultasMedicos()
 
         self.title("Inicio de Sesión - IMASUR")
-        self.geometry("400x500")
+        self.geometry("400x550")
         self.resizable(False, False)
 
+        # Centrar la ventana
         ancho_ventana = 400
-        alto_ventana = 500
+        alto_ventana = 550
         ancho_pantalla = self.winfo_screenwidth()
         alto_pantalla = self.winfo_screenheight()
         x = (ancho_pantalla // 2) - (ancho_ventana // 2)
@@ -27,10 +30,24 @@ class Login(ctk.CTk):
 
         self.grid_columnconfigure(0, weight=1)
 
-        self.lbl_logo = ctk.CTkLabel(
-            self, text="IMASUR\nEstadísticas", font=ctk.CTkFont(size=30, weight="bold")
-        )
-        self.lbl_logo.grid(row=0, column=0, pady=(50, 30))
+        # Cargar Logo
+        ruta_base = os.path.dirname(os.path.dirname(__file__))
+        ruta_logo = os.path.join(ruta_base, "assets", "logo_imasur.png")
+
+        try:
+            img_logo = Image.open(ruta_logo)
+            self.logo_image = ctk.CTkImage(
+                light_image=img_logo, dark_image=img_logo, size=(120, 120)
+            )
+
+            self.lbl_logo = ctk.CTkLabel(self, image=self.logo_image, text="")
+            self.lbl_logo.grid(row=0, column=0, pady=(40, 10))
+        except Exception as e:
+            print(f"No se pudo cargar el logo: {e}")
+            self.lbl_logo = ctk.CTkLabel(
+                self, text="IMASUR", font=ctk.CTkFont(size=30, weight="bold")
+            )
+            self.lbl_logo.grid(row=0, column=0, pady=(50, 30))
 
         self.frame_login = ctk.CTkFrame(self, corner_radius=15)
         self.frame_login.grid(row=1, column=0, padx=40, pady=10, sticky="nsew")
@@ -77,7 +94,4 @@ class Login(ctk.CTk):
 
             app_principal = VentanaPrincipal(self)
         else:
-            messagebox.showerror(
-                "Acceso Denegado",
-                "El usuario o la contraseña son incorrectos. Por favor, intente de nuevo.",
-            )
+            messagebox.showerror("Acceso Denegado", "Usuario o contraseña incorrectos.")
