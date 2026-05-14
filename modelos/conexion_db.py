@@ -1,5 +1,5 @@
 """
-Módulo que permite comprobar la conexión con la base de datos
+Módulo que permite comprobar la conexión con la base de datos.
 """
 
 import mysql.connector

@@ -102,4 +102,4 @@ class VentanaPrincipal(ctk.CTkToplevel):
         self.destroy()
         self.master_window.quit()
         self.master_window.destroy()
-        sys.exit()  # Esto asegura que el proceso termine por completo en la terminal
+        sys.exit()

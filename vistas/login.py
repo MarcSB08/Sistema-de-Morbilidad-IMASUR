@@ -11,14 +11,12 @@ class Login(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        # Instanciar la base de datos para la validación
         self.db = ConsultasMedicos()
 
         self.title("Inicio de Sesión - IMASUR")
         self.geometry("400x500")
         self.resizable(False, False)
 
-        # Centrar la ventana en la pantalla
         ancho_ventana = 400
         alto_ventana = 500
         ancho_pantalla = self.winfo_screenwidth()
@@ -73,7 +71,6 @@ class Login(ctk.CTk):
         usuario = self.ent_usuario.get()
         password = self.ent_password.get()
 
-        # Validación con la base de datos
         if self.db.validar_usuario(usuario, password):
             self.withdraw()
             from vistas.ventana_principal import VentanaPrincipal
