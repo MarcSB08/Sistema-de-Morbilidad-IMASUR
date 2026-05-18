@@ -176,3 +176,45 @@ class ConsultasMedicos:
             finally:
                 self.conexion_db.desconectar(conexion)
         return False
+
+    def obtener_relacion_mensual(self, mes, anio):
+        """Genera la tabla cruzada de morbilidad diaria por médico para un mes y año específico."""
+        conexion = self.conexion_db.conectar()
+        if conexion:
+            try:
+                cursor = conexion.cursor()
+                consulta = """
+                    SELECT e.nombre AS especialidad, m.nombre_medico, DAY(md.fecha) AS dia, SUM(md.cantidad_pacientes) as total_dia
+                    FROM medicos m
+                    JOIN especialidades e ON m.id_especialidad = e.id_especialidad
+                    LEFT JOIN morbilidad_diaria md ON m.id_medico = md.id_medico 
+                        AND MONTH(md.fecha) = %s AND YEAR(md.fecha) = %s
+                    GROUP BY e.nombre, m.nombre_medico, DAY(md.fecha)
+                    ORDER BY e.nombre ASC, m.nombre_medico ASC
+                """
+                cursor.execute(consulta, (mes, anio))
+                resultados = cursor.fetchall()
+
+                datos_procesados = {}
+                for especialidad, medico, dia, total_dia in resultados:
+                    if especialidad not in datos_procesados:
+                        datos_procesados[especialidad] = {}
+                    if medico not in datos_procesados[especialidad]:
+                        datos_procesados[especialidad][medico] = {
+                            d: 0 for d in range(1, 32)
+                        }
+                        datos_procesados[especialidad][medico]["total"] = 0
+
+                    if dia is not None:
+                        datos_procesados[especialidad][medico][dia] = int(total_dia)
+                        datos_procesados[especialidad][medico]["total"] += int(
+                            total_dia
+                        )
+
+                return datos_procesados
+            except Exception as e:
+                print(f"Error al generar relación mensual: {e}")
+                return {}
+            finally:
+                self.conexion_db.desconectar(conexion)
+        return {}

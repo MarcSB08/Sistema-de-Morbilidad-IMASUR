@@ -8,6 +8,7 @@ import os
 from PIL import Image
 from vistas.panel_ingreso import PanelIngreso
 from vistas.panel_reportes import PanelReportes
+from vistas.panel_relacion import PanelRelacion
 
 
 class VentanaPrincipal(ctk.CTkToplevel):
@@ -31,12 +32,10 @@ class VentanaPrincipal(ctk.CTkToplevel):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
-        # Barra Lateral
         self.sidebar_frame = ctk.CTkFrame(self, width=200, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, sticky="nsew")
-        self.sidebar_frame.grid_rowconfigure(4, weight=1)
+        self.sidebar_frame.grid_rowconfigure(5, weight=1)
 
-        # Cargar Logo para Sidebar
         ruta_base = os.path.dirname(os.path.dirname(__file__))
         ruta_logo = os.path.join(ruta_base, "assets", "logo_imasur.png")
 
@@ -63,9 +62,14 @@ class VentanaPrincipal(ctk.CTkToplevel):
         self.btn_ingreso.grid(row=1, column=0, padx=20, pady=10)
 
         self.btn_reportes = ctk.CTkButton(
-            self.sidebar_frame, text="Ver Reportes", command=self.mostrar_reportes
+            self.sidebar_frame, text="Ver Gráficos", command=self.mostrar_reportes
         )
         self.btn_reportes.grid(row=2, column=0, padx=20, pady=10)
+
+        self.btn_relacion = ctk.CTkButton(
+            self.sidebar_frame, text="Relación Mensual", command=self.mostrar_relacion
+        )
+        self.btn_relacion.grid(row=3, column=0, padx=20, pady=10)
 
         self.btn_logout = ctk.CTkButton(
             self.sidebar_frame,
@@ -74,9 +78,8 @@ class VentanaPrincipal(ctk.CTkToplevel):
             hover_color="#c82333",
             command=self.cerrar_sesion,
         )
-        self.btn_logout.grid(row=3, column=0, padx=20, pady=10)
+        self.btn_logout.grid(row=4, column=0, padx=20, pady=10)
 
-        # Frame Principal
         self.main_frame = ctk.CTkFrame(self, corner_radius=10)
         self.main_frame.grid(row=0, column=1, padx=20, pady=20, sticky="nsew")
 
@@ -89,16 +92,26 @@ class VentanaPrincipal(ctk.CTkToplevel):
 
         self.panel_ingreso = PanelIngreso(self.main_frame)
         self.panel_reportes = PanelReportes(self.main_frame)
+        self.panel_relacion = PanelRelacion(self.main_frame)
 
     def mostrar_ingreso(self):
         self.label_bienvenida.pack_forget()
         self.panel_reportes.pack_forget()
+        self.panel_relacion.pack_forget()
         self.panel_ingreso.pack(fill="both", expand=True)
 
     def mostrar_reportes(self):
         self.label_bienvenida.pack_forget()
         self.panel_ingreso.pack_forget()
+        self.panel_relacion.pack_forget()
         self.panel_reportes.pack(fill="both", expand=True)
+
+    def mostrar_relacion(self):
+        self.label_bienvenida.pack_forget()
+        self.panel_ingreso.pack_forget()
+        self.panel_reportes.pack_forget()
+        self.panel_reportes.limpiar_recursos()
+        self.panel_relacion.pack(fill="both", expand=True)
 
     def cerrar_sesion(self):
         self.panel_reportes.limpiar_recursos()
