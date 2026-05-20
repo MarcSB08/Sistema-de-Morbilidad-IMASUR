@@ -1,5 +1,5 @@
 """
-Módulo encargado de la interfaz de inicio de sesión del sistema con logo integrado.
+Módulo encargado de la interfaz de inicio de sesión del sistema.
 """
 
 import customtkinter as ctk
@@ -19,7 +19,6 @@ class Login(ctk.CTk):
         self.geometry("400x550")
         self.resizable(False, False)
 
-        # Centrar la ventana
         ancho_ventana = 400
         alto_ventana = 550
         ancho_pantalla = self.winfo_screenwidth()
@@ -30,7 +29,6 @@ class Login(ctk.CTk):
 
         self.grid_columnconfigure(0, weight=1)
 
-        # Cargar Logo
         ruta_base = os.path.dirname(os.path.dirname(__file__))
         ruta_logo = os.path.join(ruta_base, "assets", "logo_imasur.png")
 
