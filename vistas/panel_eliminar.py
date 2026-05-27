@@ -1,6 +1,5 @@
 """
-Módulo del panel visual donde se registra la fecha, el médico
-especialista y los pacientes atendidos por este.
+Módulo del panel visual dedicado a eliminar registros estadísticos de morbilidad.
 """
 
 import customtkinter as ctk
@@ -9,7 +8,7 @@ from tkinter import messagebox
 from modelos.consultas_medicos import ConsultasMedicos
 
 
-class PanelIngreso(ctk.CTkFrame):
+class PanelEliminar(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master, corner_radius=10, fg_color="transparent")
 
@@ -17,7 +16,7 @@ class PanelIngreso(ctk.CTkFrame):
 
         self.lbl_titulo = ctk.CTkLabel(
             self,
-            text="Registro Diario de Morbilidad",
+            text="Eliminar Registro de Morbilidad",
             font=ctk.CTkFont(size=24, weight="bold"),
         )
         self.lbl_titulo.pack(pady=(20, 30))
@@ -27,7 +26,7 @@ class PanelIngreso(ctk.CTkFrame):
         self.form_frame.grid_columnconfigure(1, weight=1)
 
         self.lbl_fecha = ctk.CTkLabel(
-            self.form_frame, text="Fecha:", font=ctk.CTkFont(size=14)
+            self.form_frame, text="Fecha del Registro:", font=ctk.CTkFont(size=14)
         )
         self.lbl_fecha.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
@@ -37,7 +36,7 @@ class PanelIngreso(ctk.CTkFrame):
 
         self.ent_fecha = ctk.CTkEntry(
             self.frame_fecha,
-            placeholder_text="Presione el botón azul para seleccionar una fecha",
+            placeholder_text="Seleccione la fecha a buscar",
             height=35,
         )
         self.ent_fecha.grid(row=0, column=0, sticky="ew")
@@ -81,31 +80,16 @@ class PanelIngreso(ctk.CTkFrame):
         )
         self.cmb_medico.grid(row=2, column=1, padx=20, pady=20, sticky="ew")
 
-        self.lbl_cantidad = ctk.CTkLabel(
-            self.form_frame, text="Pacientes Atendidos:", font=ctk.CTkFont(size=14)
-        )
-        self.lbl_cantidad.grid(row=3, column=0, padx=20, pady=20, sticky="w")
-
-        validacion = (self.register(self.validar_numeros), "%P")
-        self.ent_cantidad = ctk.CTkEntry(
-            self.form_frame,
-            placeholder_text="Ej: 15",
-            height=35,
-            validate="key",
-            validatecommand=validacion,
-        )
-        self.ent_cantidad.grid(row=3, column=1, padx=20, pady=20, sticky="ew")
-
-        self.btn_guardar = ctk.CTkButton(
+        self.btn_eliminar = ctk.CTkButton(
             self,
-            text="Guardar / Actualizar",
+            text="Buscar y Eliminar",
             font=ctk.CTkFont(size=16, weight="bold"),
             height=45,
-            fg_color="#28a745",
-            hover_color="#218838",
-            command=self.guardar_datos,
+            fg_color="#dc3545",
+            hover_color="#c82333",
+            command=self.eliminar_datos,
         )
-        self.btn_guardar.pack(pady=(20, 40))
+        self.btn_eliminar.pack(pady=(20, 40))
 
         self.cargar_especialidades()
         self.after(100, self.focus_set)
@@ -131,11 +115,6 @@ class PanelIngreso(ctk.CTkFrame):
 
         self.cmb_medico.configure(values=valores)
         self.cmb_medico.set("Seleccione un especialista...")
-
-    def validar_numeros(self, texto):
-        if texto == "" or texto.isdigit():
-            return True
-        return False
 
     def abrir_calendario(self):
         ventana_cal = ctk.CTkToplevel(self)
@@ -164,70 +143,59 @@ class PanelIngreso(ctk.CTkFrame):
         )
         btn_confirmar.pack(pady=(0, 20))
 
-    def guardar_datos(self):
+    def eliminar_datos(self):
         fecha = self.ent_fecha.get()
-        especialidad = self.cmb_especialidad.get()
         medico = self.cmb_medico.get()
-        cantidad = self.ent_cantidad.get()
 
         errores = []
         if not fecha:
             errores.append("Debe seleccionar una fecha.")
-        if especialidad == "Seleccione una especialidad..." or not especialidad:
-            errores.append("Debe seleccionar una especialidad válida.")
         if (
             medico == "Seleccione un especialista..."
             or medico == "No hay médicos registrados"
             or not medico
         ):
             errores.append("Debe seleccionar un médico válido.")
-        if not cantidad:
-            errores.append("Debe ingresar la cantidad de pacientes.")
 
         if errores:
             messagebox.showerror("Campos Incompletos", "\n".join(errores))
             return
 
-        # Validación de duplicidad
+        # Verificar si hay un registro guardado en esa fecha para ese médico
         existe, cantidad_actual = self.db.verificar_registro_existente(fecha, medico)
 
-        if existe:
-            respuesta = messagebox.askyesno(
-                "Registro Existente",
-                f"Ya existe un registro para {medico} el día {fecha} con {cantidad_actual} pacientes.\n\n¿Desea actualizarlo al nuevo valor introducido ({cantidad})?",
+        if not existe:
+            messagebox.showwarning(
+                "Registro No Encontrado",
+                f"No se encontró ningún registro estadístico para {medico} en la fecha {fecha}.",
             )
-            if respuesta:
-                exito = self.db.actualizar_registro_morbilidad(
-                    fecha, medico, int(cantidad)
-                )
-                if exito:
-                    messagebox.showinfo(
-                        "Actualización Exitosa",
-                        "El registro ha sido actualizado correctamente.",
-                    )
-                    self.limpiar_formulario()
-                else:
-                    messagebox.showerror("Error", "No se pudo actualizar el registro.")
             return
 
-        # Ingreso nuevo
-        exito = self.db.guardar_registro_morbilidad(fecha, medico, int(cantidad))
+        # Confirmación de la eliminación
+        respuesta = messagebox.askyesno(
+            "Confirmar Eliminación",
+            f"Se ha encontrado el registro de {medico} para el {fecha}.\n"
+            f"Pacientes atendidos registrados: {cantidad_actual}\n\n"
+            f"¿Está seguro que desea eliminar este registro permanentemente?",
+        )
 
-        if exito:
-            messagebox.showinfo(
-                "Registro Exitoso", f"La morbilidad de {medico} ha sido registrada."
-            )
-            self.limpiar_formulario()
-        else:
-            messagebox.showerror(
-                "Error de Conexión",
-                "Hubo un problema al guardar el registro en la base de datos.",
-            )
+        if respuesta:
+            exito = self.db.eliminar_registro_morbilidad(fecha, medico)
+            if exito:
+                messagebox.showinfo(
+                    "Eliminación Exitosa",
+                    "El registro ha sido eliminado correctamente del sistema.",
+                )
+                self.limpiar_formulario()
+            else:
+                messagebox.showerror(
+                    "Error",
+                    "Ocurrió un problema de conexión y no se pudo eliminar el registro.",
+                )
 
     def limpiar_formulario(self):
         self.ent_fecha.delete(0, "end")
         self.cmb_especialidad.set("Seleccione una especialidad...")
         self.cmb_medico.configure(values=["Seleccione un especialista..."])
         self.cmb_medico.set("Seleccione un especialista...")
-        self.ent_cantidad.delete(0, "end")
         self.focus_set()

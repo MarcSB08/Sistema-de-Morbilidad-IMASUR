@@ -16,12 +16,10 @@ class ConexionDB:
             # ENTORNO DE PRODUCCIÓN (Clínica IMASUR)
             # Se activa solo cuando abren el .exe
             # ==========================================
-            self.host = "192.168.1.50"  # IMPORTANTE: Cambia esto por la IP real del servidor de la clínica
+            self.host = "10.0.0.46"  # 10.0.0.46
             self.database = "imasur_estadisticas"
-            self.user = "root"
-            self.password = (
-                "MASB_11_2005*"  # Asegúrate de que coincida con la del servidor
-            )
+            self.user = "INFORMATICA"  # INFORMATICA
+            self.password = ""  # ""
 
         else:
             # ==========================================

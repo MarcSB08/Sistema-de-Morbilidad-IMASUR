@@ -1,4 +1,4 @@
-CREATE DATABASE imasur_estadisticas;
+CREATE DATABASE IF NOT EXISTS imasur_estadisticas;
 USE imasur_estadisticas;
 
 CREATE TABLE especialidades (

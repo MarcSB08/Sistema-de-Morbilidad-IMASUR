@@ -216,12 +216,33 @@ class PanelReportes(ctk.CTkFrame):
             )
             if archivo:
                 try:
-                    self.fig.savefig(archivo, bbox_inches="tight", facecolor="white")
+                    # Guardamos la transparencia original
+                    original_alpha = self.fig.patch.get_alpha()
+
+                    # Forzamos un fondo blanco 100% opaco
+                    self.fig.patch.set_alpha(1.0)
+                    self.fig.patch.set_facecolor("white")
+
+                    # Guardamos la imagen sin transparencia
+                    self.fig.savefig(
+                        archivo,
+                        bbox_inches="tight",
+                        facecolor="white",
+                        transparent=False,
+                    )
+
+                    # Devolvemos la transparencia al gráfico para que la interfaz siga viéndose bien
+                    self.fig.patch.set_alpha(original_alpha)
+
                     messagebox.showinfo(
                         "Exportación Exitosa",
                         f"El gráfico se ha guardado correctamente en:\n{archivo}",
                     )
                 except Exception as e:
+                    # Restaurar transparencia en caso de error también
+                    if hasattr(self, "fig") and self.fig:
+                        self.fig.patch.set_alpha(original_alpha)
+
                     messagebox.showerror(
                         "Error de Exportación",
                         f"Hubo un problema al guardar el archivo:\n{e}",

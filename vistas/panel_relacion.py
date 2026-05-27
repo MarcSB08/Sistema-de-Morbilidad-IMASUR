@@ -1,6 +1,6 @@
 """
 Módulo para visualizar la relación mensual de morbilidad en formato de tabla.
-Diseñado para maximizar la visibilidad y separación entre especialidades.
+Diseñado para maximizar la visibilidad y separación entre especialidades con aspecto de hoja de cálculo.
 """
 
 import customtkinter as ctk
@@ -66,29 +66,37 @@ class PanelRelacion(ctk.CTkFrame):
         )
         self.btn_generar.grid(row=0, column=4, padx=20, pady=10)
 
-        # Configuración avanzada del estilo de la tabla (Treeview)
+        # Configuración de apariencia de hoja de cálculo (Tema 'clam')
         style = ttk.Style()
-        style.theme_use("default")
+        style.theme_use("clam")
 
-        # Estilo general de las celdas
         style.configure(
             "Treeview",
-            background="#2b2b2b",
-            foreground="white",
+            background="#1e1e1e",
+            foreground="#d4d4d4",
             rowheight=30,
-            fieldbackground="#2b2b2b",
+            fieldbackground="#1e1e1e",
+            bordercolor="#444444",
+            lightcolor="#444444",
+            darkcolor="#444444",
             font=("Arial", 10),
         )
 
-        # Estilo de los encabezados principales
         style.configure(
             "Treeview.Heading",
-            background="#404040",
+            background="#2d2d30",
             foreground="white",
             font=("Arial", 10, "bold"),
+            relief="flat",
+            bordercolor="#444444",
         )
 
-        style.map("Treeview", background=[("selected", "#1f538d")])
+        style.map("Treeview.Heading", background=[("active", "#3e3e42")])
+        style.map(
+            "Treeview",
+            background=[("selected", "#094771")],
+            foreground=[("selected", "white")],
+        )
 
         # Frame para la tabla con barras de desplazamiento
         self.frame_tabla = ctk.CTkFrame(self)
@@ -112,14 +120,14 @@ class PanelRelacion(ctk.CTkFrame):
         # Configuración de etiquetas visuales (Tags) para colores
         self.tree.tag_configure(
             "especialidad_header",
-            background="#1f538d",
+            background="#005a9e",
             foreground="white",
             font=("Arial", 11, "bold"),
         )
-        self.tree.tag_configure("par", background="#333333")
-        self.tree.tag_configure("impar", background="#2b2b2b")
+        self.tree.tag_configure("par", background="#252526")
+        self.tree.tag_configure("impar", background="#1e1e1e")
 
-        # Definir Columnas (1 a 31 + Especialista, Especialidad y Total)
+        # Definir Columnas
         columnas = (
             ["ESPECIALISTA", "ESPECIALIDAD"]
             + [str(i) for i in range(1, 32)]
@@ -129,13 +137,13 @@ class PanelRelacion(ctk.CTkFrame):
         self.tree.column("#0", width=0, stretch=ctk.NO)
         self.tree.heading("#0", text="", anchor=ctk.W)
 
-        self.tree.column("ESPECIALISTA", anchor=ctk.W, width=200)
+        self.tree.column("ESPECIALISTA", anchor=ctk.W, width=220)
         self.tree.heading("ESPECIALISTA", text="MÉDICO ESPECIALISTA", anchor=ctk.W)
         self.tree.column("ESPECIALIDAD", anchor=ctk.W, width=180)
         self.tree.heading("ESPECIALIDAD", text="ESPECIALIDAD", anchor=ctk.W)
 
         for i in range(1, 32):
-            self.tree.column(str(i), anchor=ctk.CENTER, width=45)
+            self.tree.column(str(i), anchor=ctk.CENTER, width=40)
             self.tree.heading(str(i), text=str(i), anchor=ctk.CENTER)
 
         self.tree.column("TOTAL", anchor=ctk.CENTER, width=80)
@@ -148,7 +156,6 @@ class PanelRelacion(ctk.CTkFrame):
 
         datos_actuales = self.db.obtener_relacion_mensual(mes_numero, anio)
 
-        # Limpiar tabla
         for item in self.tree.get_children():
             self.tree.delete(item)
 
@@ -159,9 +166,7 @@ class PanelRelacion(ctk.CTkFrame):
             )
             return
 
-        # Insertar datos con formato jerárquico y visual
         for especialidad, medicos in datos_actuales.items():
-            # FILA DE SEPARACIÓN: Encabezado de la Especialidad
             self.tree.insert(
                 "",
                 ctk.END,
@@ -169,20 +174,18 @@ class PanelRelacion(ctk.CTkFrame):
                 tags=("especialidad_header",),
             )
 
-            # FILAS DE MÉDICOS: Alternando colores para visibilidad
             for idx, (medico, dias) in enumerate(medicos.items()):
                 tag = "par" if idx % 2 == 0 else "impar"
 
-                # Preparamos los valores de la fila
                 valores = [medico, especialidad]
                 for i in range(1, 32):
-                    # Dejamos la celda vacía si es 0 para que resalten más los números reales (opcional)
-                    valor_dia = dias[i] if dias[i] > 0 else ""
+                    valor_dia = dias[i] if dias[i] > 0 else "-"
                     valores.append(valor_dia)
 
                 valores.append(dias["total"])
 
                 self.tree.insert("", ctk.END, values=valores, tags=(tag,))
 
-            # Insertar una fila vacía pequeña de separación extra entre bloques
-            self.tree.insert("", ctk.END, values=("", "", *[""] * 31, ""))
+            self.tree.insert(
+                "", ctk.END, values=("", "", *[""] * 31, ""), tags=("impar",)
+            )

@@ -49,8 +49,32 @@ class ConsultasMedicos:
                 self.conexion_db.desconectar(conexion)
         return []
 
+    def verificar_registro_existente(self, fecha, nombre_medico):
+        """Verifica si ya existe un registro para un médico en una fecha específica y devuelve su cantidad."""
+        conexion = self.conexion_db.conectar()
+        if conexion:
+            try:
+                cursor = conexion.cursor()
+                consulta = """
+                    SELECT md.cantidad_pacientes 
+                    FROM morbilidad_diaria md
+                    JOIN medicos m ON md.id_medico = m.id_medico
+                    WHERE md.fecha = %s AND m.nombre_medico = %s
+                """
+                cursor.execute(consulta, (fecha, nombre_medico))
+                resultado = cursor.fetchone()
+                if resultado:
+                    return True, resultado[0]
+                return False, 0
+            except Exception as e:
+                print(f"Error al verificar registro: {e}")
+                return False, 0
+            finally:
+                self.conexion_db.desconectar(conexion)
+        return False, 0
+
     def guardar_registro_morbilidad(self, fecha, nombre_medico, cantidad_pacientes):
-        """Guarda el registro de morbilidad diaria en la base de datos."""
+        """Guarda un nuevo registro de morbilidad diaria en la base de datos."""
         conexion = self.conexion_db.conectar()
         if conexion:
             try:
@@ -71,11 +95,65 @@ class ConsultasMedicos:
                     conexion.commit()
                     return True
                 else:
-                    print("Médico no encontrado en la base de datos.")
                     return False
-
             except Exception as e:
                 print(f"Error al guardar el registro de morbilidad: {e}")
+                conexion.rollback()
+                return False
+            finally:
+                self.conexion_db.desconectar(conexion)
+        return False
+
+    def actualizar_registro_morbilidad(self, fecha, nombre_medico, cantidad_pacientes):
+        """Actualiza la cantidad de pacientes de un registro de morbilidad existente."""
+        conexion = self.conexion_db.conectar()
+        if conexion:
+            try:
+                cursor = conexion.cursor()
+                consulta_id = "SELECT id_medico FROM medicos WHERE nombre_medico = %s"
+                cursor.execute(consulta_id, (nombre_medico,))
+                resultado = cursor.fetchone()
+
+                if resultado:
+                    id_medico = resultado[0]
+                    consulta_update = """
+                        UPDATE morbilidad_diaria 
+                        SET cantidad_pacientes = %s 
+                        WHERE fecha = %s AND id_medico = %s
+                    """
+                    cursor.execute(
+                        consulta_update, (cantidad_pacientes, fecha, id_medico)
+                    )
+                    conexion.commit()
+                    return True
+                return False
+            except Exception as e:
+                print(f"Error al actualizar el registro: {e}")
+                conexion.rollback()
+                return False
+            finally:
+                self.conexion_db.desconectar(conexion)
+        return False
+
+    def eliminar_registro_morbilidad(self, fecha, nombre_medico):
+        """Elimina un registro de morbilidad específico de la base de datos."""
+        conexion = self.conexion_db.conectar()
+        if conexion:
+            try:
+                cursor = conexion.cursor()
+                consulta_id = "SELECT id_medico FROM medicos WHERE nombre_medico = %s"
+                cursor.execute(consulta_id, (nombre_medico,))
+                resultado = cursor.fetchone()
+
+                if resultado:
+                    id_medico = resultado[0]
+                    consulta_delete = "DELETE FROM morbilidad_diaria WHERE fecha = %s AND id_medico = %s"
+                    cursor.execute(consulta_delete, (fecha, id_medico))
+                    conexion.commit()
+                    return cursor.rowcount > 0
+                return False
+            except Exception as e:
+                print(f"Error al eliminar el registro: {e}")
                 conexion.rollback()
                 return False
             finally:
