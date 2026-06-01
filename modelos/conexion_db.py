@@ -1,40 +1,33 @@
 """
-Módulo que permite comprobar la conexión con la base de datos.
+Módulo que permite comprobar la conexión con la base de datos SQLite.
 """
 
-import mysql.connector
-from mysql.connector import Error
+import sqlite3
+from sqlite3 import Error
 import sys
+import os
 
 
 class ConexionDB:
     def __init__(self):
         if getattr(sys, "frozen", False):
-            self.host = "10.0.0.46"  # 10.0.0.46
-            self.database = "imasur_estadisticas"
-            self.user = "INFORMATICA"  # INFORMATICA
-            self.password = ""  # ""
-
+            base_dir = os.path.dirname(sys.executable)
         else:
-            self.host = "127.0.0.1"
-            self.database = "imasur_estadisticas"
-            self.user = "root"
-            self.password = "MASB_11_2005*"
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+        db_dir = os.path.join(base_dir, "database")
+        os.makedirs(db_dir, exist_ok=True)
+
+        self.database = os.path.join(db_dir, "imasur_estadisticas.db")
 
     def conectar(self):
         try:
-            conexion = mysql.connector.connect(
-                host=self.host,
-                database=self.database,
-                user=self.user,
-                password=self.password,
-            )
-            if conexion.is_connected():
-                return conexion
+            conexion = sqlite3.connect(self.database)
+            return conexion
         except Error as e:
-            print(f"Error al conectar a MySQL: {e}")
+            print(f"Error al conectar a SQLite: {e}")
             return None
 
     def desconectar(self, conexion):
-        if conexion and conexion.is_connected():
+        if conexion:
             conexion.close()

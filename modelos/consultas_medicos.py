@@ -36,7 +36,7 @@ class ConsultasMedicos:
                     SELECT m.nombre_medico 
                     FROM medicos m
                     JOIN especialidades e ON m.id_especialidad = e.id_especialidad
-                    WHERE e.nombre = %s
+                    WHERE e.nombre = ?
                     ORDER BY m.nombre_medico ASC
                 """
                 cursor.execute(consulta, (nombre_especialidad,))
@@ -59,7 +59,7 @@ class ConsultasMedicos:
                     SELECT md.cantidad_pacientes 
                     FROM morbilidad_diaria md
                     JOIN medicos m ON md.id_medico = m.id_medico
-                    WHERE md.fecha = %s AND m.nombre_medico = %s
+                    WHERE md.fecha = ? AND m.nombre_medico = ?
                 """
                 cursor.execute(consulta, (fecha, nombre_medico))
                 resultado = cursor.fetchone()
@@ -79,7 +79,7 @@ class ConsultasMedicos:
         if conexion:
             try:
                 cursor = conexion.cursor()
-                consulta_id = "SELECT id_medico FROM medicos WHERE nombre_medico = %s"
+                consulta_id = "SELECT id_medico FROM medicos WHERE nombre_medico = ?"
                 cursor.execute(consulta_id, (nombre_medico,))
                 resultado = cursor.fetchone()
 
@@ -87,7 +87,7 @@ class ConsultasMedicos:
                     id_medico = resultado[0]
                     consulta_insert = """
                         INSERT INTO morbilidad_diaria (fecha, id_medico, cantidad_pacientes)
-                        VALUES (%s, %s, %s)
+                        VALUES (?, ?, ?)
                     """
                     cursor.execute(
                         consulta_insert, (fecha, id_medico, cantidad_pacientes)
@@ -110,7 +110,7 @@ class ConsultasMedicos:
         if conexion:
             try:
                 cursor = conexion.cursor()
-                consulta_id = "SELECT id_medico FROM medicos WHERE nombre_medico = %s"
+                consulta_id = "SELECT id_medico FROM medicos WHERE nombre_medico = ?"
                 cursor.execute(consulta_id, (nombre_medico,))
                 resultado = cursor.fetchone()
 
@@ -118,8 +118,8 @@ class ConsultasMedicos:
                     id_medico = resultado[0]
                     consulta_update = """
                         UPDATE morbilidad_diaria 
-                        SET cantidad_pacientes = %s 
-                        WHERE fecha = %s AND id_medico = %s
+                        SET cantidad_pacientes = ? 
+                        WHERE fecha = ? AND id_medico = ?
                     """
                     cursor.execute(
                         consulta_update, (cantidad_pacientes, fecha, id_medico)
@@ -141,13 +141,13 @@ class ConsultasMedicos:
         if conexion:
             try:
                 cursor = conexion.cursor()
-                consulta_id = "SELECT id_medico FROM medicos WHERE nombre_medico = %s"
+                consulta_id = "SELECT id_medico FROM medicos WHERE nombre_medico = ?"
                 cursor.execute(consulta_id, (nombre_medico,))
                 resultado = cursor.fetchone()
 
                 if resultado:
                     id_medico = resultado[0]
-                    consulta_delete = "DELETE FROM morbilidad_diaria WHERE fecha = %s AND id_medico = %s"
+                    consulta_delete = "DELETE FROM morbilidad_diaria WHERE fecha = ? AND id_medico = ?"
                     cursor.execute(consulta_delete, (fecha, id_medico))
                     conexion.commit()
                     return cursor.rowcount > 0
@@ -185,20 +185,22 @@ class ConsultasMedicos:
             try:
                 cursor = conexion.cursor()
                 if tipo_periodo == "Mensual":
-                    filtro_tiempo = "MONTH(md.fecha) = %s"
+                    filtro_tiempo = "CAST(strftime('%m', md.fecha) AS INTEGER) = ?"
                 else:
-                    filtro_tiempo = "QUARTER(md.fecha) = %s"
+                    filtro_tiempo = (
+                        "((CAST(strftime('%m', md.fecha) AS INTEGER) + 2) / 3) = ?"
+                    )
 
                 consulta = f"""
                     SELECT m.nombre_medico, SUM(md.cantidad_pacientes) as total
                     FROM morbilidad_diaria md
                     JOIN medicos m ON md.id_medico = m.id_medico
                     JOIN especialidades e ON m.id_especialidad = e.id_especialidad
-                    WHERE {filtro_tiempo} AND YEAR(md.fecha) = %s AND e.nombre = %s
+                    WHERE {filtro_tiempo} AND CAST(strftime('%Y', md.fecha) AS INTEGER) = ? AND e.nombre = ?
                     GROUP BY m.id_medico
                     ORDER BY total DESC
                 """
-                cursor.execute(consulta, (valor_periodo, anio, especialidad))
+                cursor.execute(consulta, (int(valor_periodo), int(anio), especialidad))
                 return cursor.fetchall()
             except Exception as e:
                 print(f"Error al generar reporte de médicos: {e}")
@@ -216,20 +218,24 @@ class ConsultasMedicos:
             try:
                 cursor = conexion.cursor()
                 if tipo_periodo == "Mensual":
-                    filtro_tiempo = "MONTH(md.fecha) = %s"
+                    filtro_tiempo = "CAST(strftime('%m', md.fecha) AS INTEGER) = ?"
                 else:
-                    filtro_tiempo = "QUARTER(md.fecha) = %s"
+                    filtro_tiempo = (
+                        "((CAST(strftime('%m', md.fecha) AS INTEGER) + 2) / 3) = ?"
+                    )
 
                 consulta = f"""
                     SELECT e.nombre, SUM(md.cantidad_pacientes) as total
                     FROM morbilidad_diaria md
                     JOIN medicos m ON md.id_medico = m.id_medico
                     JOIN especialidades e ON m.id_especialidad = e.id_especialidad
-                    WHERE {filtro_tiempo} AND YEAR(md.fecha) = %s AND e.grupo_profesional = %s
+                    WHERE {filtro_tiempo} AND CAST(strftime('%Y', md.fecha) AS INTEGER) = ? AND e.grupo_profesional = ?
                     GROUP BY e.id_especialidad
                     ORDER BY total DESC
                 """
-                cursor.execute(consulta, (valor_periodo, anio, grupo_profesional))
+                cursor.execute(
+                    consulta, (int(valor_periodo), int(anio), grupo_profesional)
+                )
                 return cursor.fetchall()
             except Exception as e:
                 print(f"Error al generar reporte de especialidades: {e}")
@@ -244,7 +250,9 @@ class ConsultasMedicos:
         if conexion:
             try:
                 cursor = conexion.cursor()
-                consulta = "SELECT * FROM usuarios WHERE nombre_usuario = %s AND contrasena = %s"
+                consulta = (
+                    "SELECT * FROM usuarios WHERE nombre_usuario = ? AND contrasena = ?"
+                )
                 cursor.execute(consulta, (usuario, password))
                 resultado = cursor.fetchone()
                 return resultado is not None
@@ -262,15 +270,15 @@ class ConsultasMedicos:
             try:
                 cursor = conexion.cursor()
                 consulta = """
-                    SELECT e.nombre AS especialidad, m.nombre_medico, DAY(md.fecha) AS dia, SUM(md.cantidad_pacientes) as total_dia
+                    SELECT e.nombre AS especialidad, m.nombre_medico, CAST(strftime('%d', md.fecha) AS INTEGER) AS dia, SUM(md.cantidad_pacientes) as total_dia
                     FROM medicos m
                     JOIN especialidades e ON m.id_especialidad = e.id_especialidad
                     LEFT JOIN morbilidad_diaria md ON m.id_medico = md.id_medico 
-                        AND MONTH(md.fecha) = %s AND YEAR(md.fecha) = %s
-                    GROUP BY e.nombre, m.nombre_medico, DAY(md.fecha)
+                        AND CAST(strftime('%m', md.fecha) AS INTEGER) = ? AND CAST(strftime('%Y', md.fecha) AS INTEGER) = ?
+                    GROUP BY e.nombre, m.nombre_medico, dia
                     ORDER BY e.nombre ASC, m.nombre_medico ASC
                 """
-                cursor.execute(consulta, (mes, anio))
+                cursor.execute(consulta, (int(mes), int(anio)))
                 resultados = cursor.fetchall()
 
                 datos_procesados = {}

@@ -1,5 +1,3 @@
-USE imasur_estadisticas;
-
 INSERT INTO especialidades (id_especialidad, nombre, grupo_profesional) VALUES
 (1, 'Cardiología', 'Doctor'),
 (2, 'Cirugía Cardiovascular', 'Doctor'),
