@@ -1,6 +1,5 @@
 """
-Módulo que permite comprobar la conexión con la base de datos,
-con detección automática de entorno (Desarrollo vs Producción).
+Módulo que permite comprobar la conexión con la base de datos.
 """
 
 import mysql.connector
@@ -10,22 +9,13 @@ import sys
 
 class ConexionDB:
     def __init__(self):
-        # Detecta si el programa se está ejecutando como un .exe compilado
         if getattr(sys, "frozen", False):
-            # ==========================================
-            # ENTORNO DE PRODUCCIÓN (Clínica IMASUR)
-            # Se activa solo cuando abren el .exe
-            # ==========================================
             self.host = "10.0.0.46"  # 10.0.0.46
             self.database = "imasur_estadisticas"
             self.user = "INFORMATICA"  # INFORMATICA
             self.password = ""  # ""
 
         else:
-            # ==========================================
-            # ENTORNO DE DESARROLLO (Tu Computadora)
-            # Se activa cuando ejecutas 'python main.py'
-            # ==========================================
             self.host = "127.0.0.1"
             self.database = "imasur_estadisticas"
             self.user = "root"

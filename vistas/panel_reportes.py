@@ -68,7 +68,7 @@ class PanelReportes(ctk.CTkFrame):
         self.lbl_anio = ctk.CTkLabel(self.frame_controles, text="Año:")
         self.lbl_anio.grid(row=0, column=4, padx=10, pady=10, sticky="w")
 
-        anios_validos = [str(i) for i in range(2020, 2041)]
+        anios_validos = [str(i) for i in range(1996, 2100)]
         self.cmb_anio = ctk.CTkComboBox(
             self.frame_controles, values=anios_validos, state="readonly", width=100
         )
@@ -216,14 +216,11 @@ class PanelReportes(ctk.CTkFrame):
             )
             if archivo:
                 try:
-                    # Guardamos la transparencia original
                     original_alpha = self.fig.patch.get_alpha()
 
-                    # Forzamos un fondo blanco 100% opaco
                     self.fig.patch.set_alpha(1.0)
                     self.fig.patch.set_facecolor("white")
 
-                    # Guardamos la imagen sin transparencia
                     self.fig.savefig(
                         archivo,
                         bbox_inches="tight",
@@ -231,7 +228,6 @@ class PanelReportes(ctk.CTkFrame):
                         transparent=False,
                     )
 
-                    # Devolvemos la transparencia al gráfico para que la interfaz siga viéndose bien
                     self.fig.patch.set_alpha(original_alpha)
 
                     messagebox.showinfo(
@@ -239,7 +235,6 @@ class PanelReportes(ctk.CTkFrame):
                         f"El gráfico se ha guardado correctamente en:\n{archivo}",
                     )
                 except Exception as e:
-                    # Restaurar transparencia en caso de error también
                     if hasattr(self, "fig") and self.fig:
                         self.fig.patch.set_alpha(original_alpha)
 

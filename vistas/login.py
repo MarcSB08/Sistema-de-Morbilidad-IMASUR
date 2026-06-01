@@ -83,6 +83,7 @@ class Login(ctk.CTk):
         self.btn_login.grid(row=3, column=0, pady=(30, 40))
 
     def validar_acceso(self):
+        """Valida el acceso del usuario al sistema."""
         usuario = self.ent_usuario.get()
         password = self.ent_password.get()
 

@@ -7,6 +7,7 @@ import customtkinter as ctk
 from tkcalendar import Calendar
 from tkinter import messagebox
 from modelos.consultas_medicos import ConsultasMedicos
+import datetime
 
 
 class PanelIngreso(ctk.CTkFrame):
@@ -96,16 +97,20 @@ class PanelIngreso(ctk.CTkFrame):
         )
         self.ent_cantidad.grid(row=3, column=1, padx=20, pady=20, sticky="ew")
 
+        # Frame para agrupar botones de acción
+        self.frame_botones = ctk.CTkFrame(self, fg_color="transparent")
+        self.frame_botones.pack(pady=(20, 40))
+
         self.btn_guardar = ctk.CTkButton(
-            self,
+            self.frame_botones,
             text="Guardar / Actualizar",
-            font=ctk.CTkFont(size=16, weight="bold"),
+            font=ctk.CTkFont(size=15, weight="bold"),
             height=45,
             fg_color="#28a745",
             hover_color="#218838",
             command=self.guardar_datos,
         )
-        self.btn_guardar.pack(pady=(20, 40))
+        self.btn_guardar.grid(row=0, column=0, padx=15)
 
         self.cargar_especialidades()
         self.after(100, self.focus_set)
@@ -151,6 +156,8 @@ class PanelIngreso(ctk.CTkFrame):
             selectmode="day",
             date_pattern="yyyy-mm-dd",
             showweeknumbers=False,
+            mindate=datetime.date(1996, 1, 1),
+            maxdate=datetime.date(2099, 12, 31),
         )
         cal.pack(pady=20, padx=20, fill="both", expand=True)
 
@@ -173,6 +180,17 @@ class PanelIngreso(ctk.CTkFrame):
         errores = []
         if not fecha:
             errores.append("Debe seleccionar una fecha.")
+        else:
+            try:
+                # Validar que el año se encuentre en el rango correcto
+                anio_seleccionado = int(fecha.split("-")[0])
+                if not (1996 <= anio_seleccionado <= 2099):
+                    errores.append(
+                        "El año del registro debe estar comprendido entre 1996 y 2099."
+                    )
+            except ValueError:
+                pass
+
         if especialidad == "Seleccione una especialidad..." or not especialidad:
             errores.append("Debe seleccionar una especialidad válida.")
         if (
@@ -210,7 +228,6 @@ class PanelIngreso(ctk.CTkFrame):
                     messagebox.showerror("Error", "No se pudo actualizar el registro.")
             return
 
-        # Ingreso nuevo
         exito = self.db.guardar_registro_morbilidad(fecha, medico, int(cantidad))
 
         if exito:

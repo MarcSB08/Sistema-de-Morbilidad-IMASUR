@@ -1,6 +1,5 @@
 """
 Módulo para visualizar la relación mensual de morbilidad en formato de tabla.
-Diseñado para maximizar la visibilidad y separación entre especialidades con aspecto de hoja de cálculo.
 """
 
 import customtkinter as ctk
@@ -51,7 +50,7 @@ class PanelRelacion(ctk.CTkFrame):
         ctk.CTkLabel(self.frame_controles, text="Año:").grid(
             row=0, column=2, padx=10, pady=10
         )
-        anios_validos = [str(i) for i in range(2020, 2041)]
+        anios_validos = [str(i) for i in range(1996, 2100)]
         self.cmb_anio = ctk.CTkComboBox(
             self.frame_controles, values=anios_validos, state="readonly", width=100
         )
@@ -66,7 +65,7 @@ class PanelRelacion(ctk.CTkFrame):
         )
         self.btn_generar.grid(row=0, column=4, padx=20, pady=10)
 
-        # Configuración de apariencia de hoja de cálculo (Tema 'clam')
+        # Configuración de apariencia de hoja de cálculo
         style = ttk.Style()
         style.theme_use("clam")
 
@@ -117,7 +116,6 @@ class PanelRelacion(ctk.CTkFrame):
         self.tree_scroll_y.config(command=self.tree.yview)
         self.tree_scroll_x.config(command=self.tree.xview)
 
-        # Configuración de etiquetas visuales (Tags) para colores
         self.tree.tag_configure(
             "especialidad_header",
             background="#005a9e",
@@ -127,7 +125,6 @@ class PanelRelacion(ctk.CTkFrame):
         self.tree.tag_configure("par", background="#252526")
         self.tree.tag_configure("impar", background="#1e1e1e")
 
-        # Definir Columnas
         columnas = (
             ["ESPECIALISTA", "ESPECIALIDAD"]
             + [str(i) for i in range(1, 32)]

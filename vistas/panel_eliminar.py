@@ -171,7 +171,6 @@ class PanelEliminar(ctk.CTkFrame):
             )
             return
 
-        # Confirmación de la eliminación
         respuesta = messagebox.askyesno(
             "Confirmar Eliminación",
             f"Se ha encontrado el registro de {medico} para el {fecha}.\n"
