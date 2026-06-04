@@ -25,4 +25,4 @@ CREATE TABLE IF NOT EXISTS usuarios (
     contrasena VARCHAR(50) NOT NULL
 );
 
-INSERT INTO usuarios (nombre_usuario, contrasena) VALUES ('admin', '123456');
+INSERT INTO usuarios (nombre_usuario, contrasena) VALUES ('fanny', '123456');

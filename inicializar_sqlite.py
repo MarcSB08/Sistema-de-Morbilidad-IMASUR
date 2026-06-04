@@ -1,9 +1,14 @@
 import os
+import sys
 import sqlite3
 
-
 def inicializar_db():
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    if getattr(sys, "frozen", False):
+        base_dir = os.path.dirname(sys.executable)
+        bundle_dir = sys._MEIPASS
+    else:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        bundle_dir = base_dir
 
     db_dir = os.path.join(base_dir, "database")
     os.makedirs(db_dir, exist_ok=True)
@@ -43,16 +48,16 @@ def inicializar_db():
     """
     cursor.executescript(tablas_sql)
 
-    cursor.execute("SELECT COUNT(*) FROM usuarios WHERE nombre_usuario = 'admin'")
+    cursor.execute("SELECT COUNT(*) FROM usuarios WHERE nombre_usuario = 'fanny'")
     if cursor.fetchone()[0] == 0:
         cursor.execute(
-            "INSERT INTO usuarios (nombre_usuario, contrasena) VALUES ('admin', '123456')"
+            "INSERT INTO usuarios (nombre_usuario, contrasena) VALUES ('fanny', '123456')"
         )
-        print("- Usuario 'admin' creado exitosamente.")
+        print("- Usuario 'fanny' creado exitosamente.")
 
     cursor.execute("SELECT COUNT(*) FROM especialidades")
     if cursor.fetchone()[0] == 0:
-        ruta_sql = os.path.join(base_dir, "scripts_sql", "directorio_medico.sql")
+        ruta_sql = os.path.join(bundle_dir, "scripts_sql", "directorio_medico.sql")
         if os.path.exists(ruta_sql):
             with open(ruta_sql, "r", encoding="utf-8") as archivo_sql:
                 script_medicos = archivo_sql.read()
