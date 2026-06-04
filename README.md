@@ -39,8 +39,7 @@ Para ejecutar el código fuente de forma local, tener instalado **Python 3.8.10*
 
 1. **Clonar el repositorio:**
 ```bash
-git clone [https://github.com/tu-usuario/sistema-de-morbilidad-imasur.git](https://github.com/tu-usuario/sistema-de-morbilidad-imasur.git)
-cd sistema-de-morbilidad-imasur
+git clone https://github.com/MarcSB08/Sistema-de-Morbilidad-IMASUR.git
 ```
 
 2. **Crear y activar el entorno virtual:**
