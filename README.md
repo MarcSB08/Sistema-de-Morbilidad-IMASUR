@@ -15,15 +15,14 @@
 
 El **Sistema de Morbilidad IMASUR** es una herramienta de escritorio desarrollada a la medida para el Instituto Municipal Autónomo de Atención y Cooperación para la Salud de Urbaneja (Lechería, Estado Anzoátegui). 
 
-Su objetivo principal es modernizar y optimizar el trabajo del personal de Registros Médicos mediante la captura, procesamiento y visualización de datos numéricos sobre la afluencia de pacientes por especialista. Todo esto operando bajo un entorno local aislado y seguro, garantizando la privacidad absoluta al no registrar información de identidad personal de los pacientes.
+Su objetivo principal es modernizar y optimizar el trabajo del personal de Registros Médicos mediante la captura, procesamiento y visualización de datos numéricos sobre la afluencia de pacientes por especialista.
 
 ## Características Principales
 
 * **Gestión de Morbilidad:** Registro rápido y validado de la cantidad de pacientes atendidos por fecha y médico especialista.
-* **Prevención de Duplicados:** Detección inteligente de registros existentes para un mismo médico en la misma fecha, permitiendo la actualización segura de los datos.
-* **Reportes Estadísticos Visuales:** Generación de gráficos de torta (Mensuales y Trimestrales) para comparar la afluencia entre médicos de una misma especialidad, o entre distintos grupos profesionales. Opción de exportación a `.png` con fondo sólido.
-* **Visor de Relación Mensual (Formato ACT):** Visualización interactiva en formato de hoja de cálculo oscura, con una herramienta secundaria para renderizar la tabla institucional oficial con totales calculados dinámicamente.
-* **Base de Datos Auto-gestionada:** Sistema embebido sin necesidad de servidores externos.
+* **Prevención de Duplicados:** Detección de registros existentes para un mismo médico en la misma fecha, permitiendo la actualización segura de los datos.
+* **Reportes Estadísticos Visuales:** Generación de gráficos de torta (Mensuales y Trimestrales) para comparar la afluencia entre médicos de una misma especialidad, o entre distintos grupos profesionales. Opción de exportación a `.png`.
+* **Visor de Relación Mensual:** Visualización interactiva en formato de hoja de cálculo, con una herramienta secundaria para renderizar la tabla institucional oficial con totales calculados dinámicamente. Opción para exportar a Excel en formato `.xlsx`.
 
 ## Tecnologías Utilizadas
 
@@ -33,9 +32,9 @@ Su objetivo principal es modernizar y optimizar el trabajo del personal de Regis
 * **Base de Datos:** SQLite (`sqlite3`)
 * **Componentes Adicionales:** `tkcalendar`, `babel`
 
-## Instalación y Entorno de Desarrollo
+## Instalación
 
-Para ejecutar el código fuente de forma local, tener instalado **Python 3.8.10**.
+Para ejecutar el código fuente de forma local, instalar **Python 3.8.10**.
 
 1. **Clonar el repositorio:**
 ```bash
