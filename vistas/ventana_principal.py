@@ -2,14 +2,16 @@
 Ventana principal del sistema con logo en la barra lateral.
 """
 
-import customtkinter as ctk
-import sys
 import os
+import sys
+
+import customtkinter as ctk
 from PIL import Image
-from vistas.panel_ingreso import PanelIngreso
+
 from vistas.panel_eliminar import PanelEliminar
-from vistas.panel_reportes import PanelReportes
+from vistas.panel_ingreso import PanelIngreso
 from vistas.panel_relacion import PanelRelacion
+from vistas.panel_reportes import PanelReportes
 
 
 class VentanaPrincipal(ctk.CTkToplevel):

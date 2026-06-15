@@ -3,11 +3,13 @@ Módulo del panel visual donde se registra la fecha, el médico
 especialista y los pacientes atendidos por este.
 """
 
+import datetime
+from tkinter import messagebox
+
 import customtkinter as ctk
 from tkcalendar import Calendar
-from tkinter import messagebox
+
 from modelos.consultas_medicos import ConsultasMedicos
-import datetime
 
 
 class PanelIngreso(ctk.CTkFrame):

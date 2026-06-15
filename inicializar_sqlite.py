@@ -1,6 +1,7 @@
 import os
-import sys
 import sqlite3
+import sys
+
 
 def inicializar_db():
     if getattr(sys, "frozen", False):

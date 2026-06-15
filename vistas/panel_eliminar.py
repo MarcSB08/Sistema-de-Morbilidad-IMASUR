@@ -2,9 +2,11 @@
 Módulo del panel visual dedicado a eliminar registros estadísticos de morbilidad.
 """
 
+from tkinter import messagebox
+
 import customtkinter as ctk
 from tkcalendar import Calendar
-from tkinter import messagebox
+
 from modelos.consultas_medicos import ConsultasMedicos
 
 

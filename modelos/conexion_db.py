@@ -2,10 +2,10 @@
 Módulo que permite comprobar la conexión con la base de datos SQLite.
 """
 
-import sqlite3
-from sqlite3 import Error
-import sys
 import os
+import sqlite3
+import sys
+from sqlite3 import Error
 
 
 class ConexionDB:

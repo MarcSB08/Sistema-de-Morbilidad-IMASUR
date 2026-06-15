@@ -2,11 +2,13 @@
 Módulo encargado de la interfaz de inicio de sesión del sistema.
 """
 
-import customtkinter as ctk
-from tkinter import messagebox
-from modelos.consultas_medicos import ConsultasMedicos
-from PIL import Image
 import os
+from tkinter import messagebox
+
+import customtkinter as ctk
+from PIL import Image
+
+from modelos.consultas_medicos import ConsultasMedicos
 
 
 class Login(ctk.CTk):

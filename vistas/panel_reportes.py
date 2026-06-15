@@ -2,10 +2,12 @@
 Módulo del panel visual donde se generan los reportes estadísticos de morbilidad.
 """
 
+from tkinter import filedialog, messagebox
+
 import customtkinter as ctk
-from tkinter import messagebox, filedialog
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 from modelos.consultas_medicos import ConsultasMedicos
 
 

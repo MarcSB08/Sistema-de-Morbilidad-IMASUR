@@ -33,7 +33,7 @@ class ConsultasMedicos:
             try:
                 cursor = conexion.cursor()
                 consulta = """
-                    SELECT m.nombre_medico 
+                    SELECT m.nombre_medico
                     FROM medicos m
                     JOIN especialidades e ON m.id_especialidad = e.id_especialidad
                     WHERE e.nombre = ?
@@ -56,7 +56,7 @@ class ConsultasMedicos:
             try:
                 cursor = conexion.cursor()
                 consulta = """
-                    SELECT md.cantidad_pacientes 
+                    SELECT md.cantidad_pacientes
                     FROM morbilidad_diaria md
                     JOIN medicos m ON md.id_medico = m.id_medico
                     WHERE md.fecha = ? AND m.nombre_medico = ?
@@ -117,8 +117,8 @@ class ConsultasMedicos:
                 if resultado:
                     id_medico = resultado[0]
                     consulta_update = """
-                        UPDATE morbilidad_diaria 
-                        SET cantidad_pacientes = ? 
+                        UPDATE morbilidad_diaria
+                        SET cantidad_pacientes = ?
                         WHERE fecha = ? AND id_medico = ?
                     """
                     cursor.execute(
@@ -264,36 +264,56 @@ class ConsultasMedicos:
         return False
 
     def obtener_relacion_mensual(self, mes, anio):
-        """Genera la tabla cruzada de morbilidad diaria por médico para un mes y año específico."""
+        """
+        Genera la tabla cruzada de morbilidad diaria por médico para un mes y año específico.
+
+        Retorna un diccionario con la siguiente estructura:
+        {
+            grupo_profesional: {
+                especialidad: {
+                    medico: { 1..31: int, 'total': int }
+                }
+            }
+        }
+        Ecografía se incluye bajo su grupo ('Doctor') como cualquier otra especialidad,
+        y el módulo de exportación se encarga de renderizarla por separado al final.
+        """
         conexion = self.conexion_db.conectar()
         if conexion:
             try:
                 cursor = conexion.cursor()
                 consulta = """
-                    SELECT e.nombre AS especialidad, m.nombre_medico, CAST(strftime('%d', md.fecha) AS INTEGER) AS dia, SUM(md.cantidad_pacientes) as total_dia
+                    SELECT e.grupo_profesional, e.nombre AS especialidad, m.nombre_medico,
+                           CAST(strftime('%d', md.fecha) AS INTEGER) AS dia,
+                           SUM(md.cantidad_pacientes) as total_dia
                     FROM medicos m
                     JOIN especialidades e ON m.id_especialidad = e.id_especialidad
-                    LEFT JOIN morbilidad_diaria md ON m.id_medico = md.id_medico 
-                        AND CAST(strftime('%m', md.fecha) AS INTEGER) = ? AND CAST(strftime('%Y', md.fecha) AS INTEGER) = ?
-                    GROUP BY e.nombre, m.nombre_medico, dia
-                    ORDER BY e.nombre ASC, m.nombre_medico ASC
+                    LEFT JOIN morbilidad_diaria md ON m.id_medico = md.id_medico
+                        AND CAST(strftime('%m', md.fecha) AS INTEGER) = ?
+                        AND CAST(strftime('%Y', md.fecha) AS INTEGER) = ?
+                    GROUP BY e.grupo_profesional, e.nombre, m.nombre_medico, dia
+                    ORDER BY e.grupo_profesional ASC, e.nombre ASC, m.nombre_medico ASC
                 """
                 cursor.execute(consulta, (int(mes), int(anio)))
                 resultados = cursor.fetchall()
 
                 datos_procesados = {}
-                for especialidad, medico, dia, total_dia in resultados:
-                    if especialidad not in datos_procesados:
-                        datos_procesados[especialidad] = {}
-                    if medico not in datos_procesados[especialidad]:
-                        datos_procesados[especialidad][medico] = {
+                for grupo, especialidad, medico, dia, total_dia in resultados:
+                    if grupo not in datos_procesados:
+                        datos_procesados[grupo] = {}
+                    if especialidad not in datos_procesados[grupo]:
+                        datos_procesados[grupo][especialidad] = {}
+                    if medico not in datos_procesados[grupo][especialidad]:
+                        datos_procesados[grupo][especialidad][medico] = {
                             d: 0 for d in range(1, 32)
                         }
-                        datos_procesados[especialidad][medico]["total"] = 0
+                        datos_procesados[grupo][especialidad][medico]["total"] = 0
 
                     if dia is not None:
-                        datos_procesados[especialidad][medico][dia] = int(total_dia)
-                        datos_procesados[especialidad][medico]["total"] += int(
+                        datos_procesados[grupo][especialidad][medico][dia] = int(
+                            total_dia
+                        )
+                        datos_procesados[grupo][especialidad][medico]["total"] += int(
                             total_dia
                         )
 
